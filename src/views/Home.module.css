@@ -1,0 +1,258 @@
+.container {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    background: #fff;
+    overflow: hidden;
+}
+
+.container > main {
+	max-width: 1024px;
+	width: 1024px;
+	height: 100vh;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 0.35fr 1fr;
+	gap: 0px 0px;
+	grid-template-areas:
+		'.'
+		'.';
+}
+
+.container > main > :first-child {
+	width: 100%;
+	display: grid;
+	grid-template-columns: 0.35fr 0.65fr;
+	grid-template-rows: 1fr;
+	gap: 0px 20px;
+	grid-template-areas: '. .';
+}
+
+.container > main > :last-child {
+    display: flex;
+    height: 100%;
+	justify-content: center;
+	align-items: flex-start;
+	padding-top: 20px;
+}
+
+.me-section {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+}
+
+.me-section > div {
+	width: 100%;
+	height: 90%;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #c4c4c4;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	padding: 0 20px;
+}
+
+.me-section > div > div {
+	display: grid;
+	grid-template-columns: 0.3fr 0.7fr;
+	grid-template-rows: 1fr;
+	gap: 0px 0px;
+	grid-template-areas: '. .';
+	margin-bottom: 20px;
+}
+
+.me-section > div > h1 {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.me-section > div > h1 > button {
+    float: right;
+    box-shadow: 0px 0px 0px transparent;
+    border: 0px solid transparent;
+    text-shadow: 0px 0px 0px transparent;
+    min-width: 30px;
+    min-height: 30px;
+    background: #fff;
+    border: 1px solid #c4c4c4;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.me-section > div > h1 > button > img{
+    mask: url('./my-location.svg');
+    mask-repeat: no-repeat;
+    min-width: 24px;
+	min-height: 24px;
+	background-color: #3d3d3d;
+}
+
+.me-section > div > div > label {
+	width: 100%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	font-size: 1rem;
+}
+
+.me-section > div > div > input {
+	width: 90%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	font-size: 0.8rem;
+	cursor: not-allowed;
+}
+
+.jobs-section {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+}
+
+.jobs-section > div {
+	width: 100%;
+	height: 90%;
+	max-height: 400px;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #c4c4c4;
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.jobs-section > div > table {
+	margin-top: 20px;
+	width: 90%;
+	max-height: calc(100% - 20px - 20px);
+	overflow: hidden;
+}
+
+.jobs-section > div > table > thead > tr {
+	font-size: 0.9rem;
+	color: #3d3d3d;
+	font-weight: bold;
+	height: 32px;
+}
+
+.jobs-section > div > table > thead > :last-child { 
+    margin: 4px 0px;
+    border-bottom: 1px solid #c4c4c4;
+    height: 60px;
+}
+
+
+.jobs-section > div > table > * > tr {
+	width: 100%;
+	display: flex;
+}
+
+.jobs-section > div > table > * > tr > * {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.jobs-section > div > table > thead > tr > th > input{ 
+    width: 80%;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.jobs-section > div > table > tbody {
+	display: block;
+	max-height: calc(100% - 32px);
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.jobs-section > div > table > tbody > tr {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	height: 32px;
+	font-size: 0.88rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
+.jobs-section > div > table > tbody > tr:hover {
+	background-color: rgba(196, 196, 196, 0.2);
+}
+
+.jobs-section > div > table > tbody > tr > td {
+	display: block;
+	text-align: center;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.map-section {
+	width: 100%;
+	height: 90%;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #c4c4c4;
+}
+
+.map-container {
+	width: 100%;
+	height: 100%;
+}
+
+.marker {
+	display: flex;
+	flex-direction: column;
+	overflow: auto;
+}
+
+.marker > div {
+	display: flex;
+	flex-direction: column;
+}
+
+.marker > div > h4 {
+	margin: 0;
+	font-size: 0.8rem;
+	font-weight: bold;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.marker > div > p {
+	margin: 0;
+	font-size: 0.6rem;
+	margin-bottom: 4px;
+}
+
+p.status {
+	text-transform: capitalize;
+}
+
+.job-pending {
+	text-transform: capitalize;
+	color: rgb(255, 159, 10);
+}
+
+.job-in-progress {
+	text-transform: capitalize;
+	color: rgb(52, 199, 89);
+}
+
+.job-complete {
+	text-transform: capitalize;
+}
