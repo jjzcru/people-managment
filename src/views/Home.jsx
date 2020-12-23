@@ -10,8 +10,7 @@ export default class Home extends Component {
 	state = {
 		me: null,
 		jobs: [],
-        selectedJob: null,
-        location: null
+		selectedJob: null,
 	};
 
 	componentDidMount() {
@@ -20,9 +19,78 @@ export default class Home extends Component {
 			window.location.href = '/auth';
 		}
 
-		this.getMe();
-		this.getJobs();
+		this.getMe()
+			.then(this.getJobs)
+			.then(this.getLocation)
+			.catch((err) => {
+				alert(err.message);
+				window.location.href = '/auth';
+			});
 	}
+
+	isAuthenticated = () => {
+		return !!localStorage.getItem('token');
+	};
+
+	getMe = async () => {
+		const { api } = this.context;
+		const me = await api.getMe();
+		const { id } = me;
+		if (!id) {
+			localStorage.removeItem('token');
+			localStorage.removeItem('jobs');
+			window.location.href = '/auth';
+			return;
+		}
+		return me;
+	};
+
+	getJobs = async (me) => {
+		const { api } = this.context;
+		if (localStorage.getItem('jobs')) {
+			return {
+				me,
+				jobs: JSON.parse(localStorage.getItem('jobs')),
+			};
+		}
+		const jobs = await api.getJobs();
+		localStorage.setItem('jobs', JSON.stringify(jobs));
+		return {
+			me,
+			jobs,
+		};
+	};
+
+	getLocation = ({ me, jobs }) => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				({ coords }) => {
+					const { accuracy, latitude, longitude } = coords;
+					me.location = {
+						accuracy,
+						latitude,
+						longitude,
+					};
+					this.setState({
+						me,
+						jobs,
+					});
+				},
+				() => {
+					this.setState({
+						me,
+						jobs,
+					});
+				}
+			);
+		} else {
+			console.warn('Geo location is not available');
+			this.setState({
+				me,
+				jobs,
+			});
+		}
+	};
 
 	onJobClick = (job) => {
 		this.setState({
@@ -30,43 +98,12 @@ export default class Home extends Component {
 		});
 	};
 
-	getMe = () => {
-		const { api } = this.context;
-		api.getMe()
-			.then((me) => {
-				const { id } = me;
-				if (!id) {
-					localStorage.removeItem('token');
-					localStorage.removeItem('jobs');
-					window.location.href = '/auth';
-					return;
-				}
-				this.setState({ me });
-			})
-			.catch(console.error);
-	};
-
-	getJobs = () => {
-		const { api } = this.context;
-		if (localStorage.getItem('jobs')) {
-			this.setState({
-				jobs: JSON.parse(localStorage.getItem('jobs')),
-			});
-
-			return;
-		}
-		api.getJobs()
-			.then((jobs) => {
-				localStorage.setItem('jobs', JSON.stringify(jobs));
-				this.setState({
-					jobs,
-				});
-			})
-			.catch(console.error);
-	};
-
-	isAuthenticated = () => {
-		return !!localStorage.getItem('token');
+	onMyLocationClick = () => {
+        const { me } = this.state;
+        me.location.zoom = 20;
+		this.setState({
+			selectedJob: me.location,
+		});
 	};
 
 	render() {
@@ -76,14 +113,17 @@ export default class Home extends Component {
 				<main>
 					<div>
 						<section className={styles['me-section']}>
-							<Me me={me} />
+							<Me
+								me={me}
+								onMyLocationClick={this.onMyLocationClick}
+							/>
 						</section>
 						<section className={styles['jobs-section']}>
 							<Jobs jobs={jobs} onJobClick={this.onJobClick} />
 						</section>
 					</div>
 					<div>
-						<Map jobs={jobs} job={selectedJob} />
+						<Map me={me} jobs={jobs} job={selectedJob} />
 					</div>
 				</main>
 			</div>
@@ -91,14 +131,21 @@ export default class Home extends Component {
 	}
 }
 
-function Me({ me }) {
+function Me({ me, onMyLocationClick }) {
 	if (!me) {
 		return <div></div>;
 	}
-	const { id, name, email } = me;
+	const { id, name, email, location } = me;
 	return (
 		<div>
-			<h1>User</h1>
+			<h1>
+				User{' '}
+				{location ? (
+					<button onClick={onMyLocationClick}>
+						<img alt={''}/>
+					</button>
+				) : null}
+			</h1>
 			<div>
 				<label htmlFor={'id'}>ID</label>
 				<input name={'id'} disabled type={'text'} value={id} />
@@ -111,6 +158,39 @@ function Me({ me }) {
 				<label htmlFor={'email'}>Email</label>
 				<input disabled name={'email'} type={'email'} value={email} />
 			</div>
+			{location && location.latitude ? (
+				<div>
+					<label htmlFor={'latitude'}>Latitude</label>
+					<input
+						name={'latitude'}
+						disabled
+						type={'text'}
+						value={location.latitude}
+					/>
+				</div>
+			) : null}
+			{location && location.longitude ? (
+				<div>
+					<label htmlFor={'longitude'}>Longitude</label>
+					<input
+						name={'longitude'}
+						disabled
+						type={'text'}
+						value={location.longitude}
+					/>
+				</div>
+			) : null}
+			{location && location.accuracy ? (
+				<div>
+					<label htmlFor={'accuracy'}>Accuracy</label>
+					<input
+						name={'accuracy'}
+						disabled
+						type={'text'}
+						value={location.accuracy}
+					/>
+				</div>
+			) : null}
 		</div>
 	);
 }
@@ -160,8 +240,8 @@ function Jobs({ jobs, onJobClick }) {
 					<tr>
 						<th>
 							<input
-                                type={'text'}
-                                placeholder={'Search by title'}
+								type={'text'}
+								placeholder={'Search by title'}
 								value={searchTitle}
 								onChange={(e) => {
 									setSearchTitle(e.target.value);
@@ -171,8 +251,8 @@ function Jobs({ jobs, onJobClick }) {
 						<th>
 							<input
 								type={'text'}
-                                value={searchAssign}
-                                placeholder={'Search by assigment'}
+								value={searchAssign}
+								placeholder={'Search by assigment'}
 								onChange={(e) => {
 									setSearchAssign(e.target.value);
 								}}
@@ -226,12 +306,12 @@ function Jobs({ jobs, onJobClick }) {
 	);
 }
 
-function Map({ jobs, job }) {
+function Map({ jobs, job, me }) {
 	const [map, setMap] = useState(null);
 	useEffect(() => {
 		if (job) {
-			const { latitude, longitude } = job;
-			map.setView({ lat: latitude, lng: longitude }, 5);
+			const { latitude, longitude, zoom} = job;
+			map.setView({ lat: latitude, lng: longitude }, zoom || 7);
 		}
 	}, [job, map]);
 	if (!jobs || !jobs.length) {
@@ -241,10 +321,16 @@ function Map({ jobs, job }) {
 	let zoom;
 
 	if (!job) {
-		zoom = 3;
-		const averageLocation = averageGeolocation(jobs);
-		latitude = averageLocation.latitude;
-		longitude = averageLocation.longitude;
+		if (me && me.location) {
+			zoom = 20;
+			latitude = me.location.latitude;
+			longitude = me.location.longitude;
+		} else {
+			zoom = 3;
+			const averageLocation = averageGeolocation(jobs);
+			latitude = averageLocation.latitude;
+			longitude = averageLocation.longitude;
+		}
 	}
 
 	return (
@@ -261,6 +347,28 @@ function Map({ jobs, job }) {
 					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>
+				{me && me.location ? (
+					<Marker
+						position={[me.location.latitude, me.location.longitude]}
+					>
+						<Popup>
+							<div className={styles['marker']}>
+								<div>
+									<h4>ID</h4>
+									<p>{me.id}</p>
+								</div>
+								<div>
+									<h4>Name</h4>
+									<p>{me.name}</p>
+								</div>
+								<div>
+									<h4>Email</h4>
+									<p>{me.email}</p>
+								</div>
+							</div>
+						</Popup>
+					</Marker>
+				) : null}
 				{jobs.map((job) => {
 					const {
 						id,
