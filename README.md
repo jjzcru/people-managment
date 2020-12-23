@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Prueba
+Este proyecto esta hecho en react
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Instalacion
+1. Clonar el repo
+2. Correr el comando `yarn`
+3. Correr el comando `yarn start`
 
-## Available Scripts
+*El proyecto corre por default en el puerto 3000 pero pedira otro puerto
+en caso de que este este ocupado*
 
-In the project directory, you can run:
+## Como esta construido
+En el proyecto hay 2 componentes para manejar las vistas una para la 
+autenticacion y otra para la pagina de inicio.
 
-### `yarn start`
+### Autenticacion
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+En la autenticacion guardo el token en `localStorage` y verifico si el usuario
+esta autenticado o no dependiendo si el valor `token` esta en `localStorage` o 
+no.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Inicio
+En la pagina de inicio pido los jobs y los guardo en el cache del browser 
+para que la proxima vez que cargue no tenga que pedirlos.
 
-### `yarn test`
+En el momento en que voy al home si el usuario no esta autenticado lo 
+redirecciono a la pagina de login.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Si la sesion expira cuando cargo la pagina de inicio tambien lo redirecciono al
+login. Adicional le pido al usuario su `geolocation` usando el api de navigator
+del browser. Si el dispositivo no lo soporta lo omito y si el usuario rechaza
+dar permiso tambien omito la localizacion del usuario.
 
-### `yarn build`
+Si lo permite, yo incluye los valores de donde esta localizado ademas de un
+boton para que marque en el mapa el lugar donde esta.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+En el listado de trabajos se encuentra una barra de busqueda para poder filtrar
+los `jobs`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Se que los `jobs` funcionan con pagination, sin embargo como pagination produce
+un mal ux, [Avoid the Pains of Pagination](https://uxmovement.com/navigation/avoid-the-pains-of-pagination/), decidi pedir todos los `jobs` pidiendo todas
+las paginas en paralelo y luego concatenandolas juntas usando el `Promise.all`
+y luego los guardo en el cache para que las visitas subsecuentes el usuario 
+no tenga que esperar.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Services
 
-### `yarn eject`
+#### Api.js
+Todo lo que sea integracion con algun agente remoto me gusta trabajarlo con
+un archivo llamado `Api.js` y se que en ese archivo encuentro todo lo necesario
+para hacer llamadas remota.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+#### AppContext.js
+Uso context para compartir objetos que probablemente van a ser requerido entre
+varios componentes y asi evito el `prop-drilling`.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Observaciones
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Bloatware
+Si observan el `package.json` notaran, que las unicas librerias que estan ahi
+son `react` y `leaflet`, sin ninguna otra libreria. Eso fue una decision 
+intencional para mantener el codigo lo mas liviano posible y solo utilizar 
+librerias cuando son realmente necesarias.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Desde que salio `flexbox`, `css-grid` y `media query` ya no hay necesidad de 
+depender de librerias de `css` como `foundation` o `bootstrap`, que lo que hacen 
+mas que todo es agregar mas peso a las paginas haciendo que carguen mas lento. 
 
-## Learn More
+Actualmente es mas comun hacer un `design language` custom que usar un framework,
+en 2020 es mas comun el uso de `utility library` como `Tailwind CSS`,
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### CSS Modules
+Para hacer styling uso `css-modules` y con eso obtengo `isolation` entre las 
+vistas y componentes sin tener que preocuparme por metodologias como `BEM`, 
+`ACSS` o `SMACSS`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Insomnia
+Me gusta siempre tener un `Workspace` de `Insomnia` por proyecto para manterner
+documentadas mis `api` y poder reutilizarlas o poder compartirlas.
 
-### Code Splitting
+[Insomnia](https://insomnia.rest/) es un `rest client` como `Postman`. 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Dentro de la carpeta `docs`, hay un archivo llamado `Insomnia.json`
 
-### Analyzing the Bundle Size
+En caso que deseen ver como esta la documentacion de los endpoints de la 
+prueba, pueden importar ese archivo en Insomnia y ver como corri los endpoints.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Git 
+La metodologia que uso para git es [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/)

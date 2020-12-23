@@ -142,7 +142,7 @@ function Me({ me, onMyLocationClick }) {
 				User{' '}
 				{location ? (
 					<button onClick={onMyLocationClick}>
-						<img />
+						<img alt={''}/>
 					</button>
 				) : null}
 			</h1>
