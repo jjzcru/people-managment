@@ -1,25 +1,31 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import Api from './services/Api';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+	state = {
+		api: null,
+	};
+	componentDidMount() {
+    console.clear();
+		const api = new Api();
+		const email = 'tvandervort@example.net';
+		const password = 'password';
+
+		api.authenticate({
+			email,
+			password,
+		})
+			.then(console.log)
+			.catch(console.error);
+
+		this.setState({
+			api,
+		});
+	}
+	render() {
+		return <div>Hello world</div>;
+	}
 }
 
 export default App;
