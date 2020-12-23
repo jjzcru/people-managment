@@ -73,6 +73,27 @@
 	font-weight: bold;
 }
 
+.me-section > div > h1 > button {
+    float: right;
+    box-shadow: 0px 0px 0px transparent;
+    border: 0px solid transparent;
+    text-shadow: 0px 0px 0px transparent;
+    min-width: 30px;
+    min-height: 30px;
+    background: #fff;
+    border: 1px solid #c4c4c4;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.me-section > div > h1 > button > img{
+    mask: url('./my-location.svg');
+    mask-repeat: no-repeat;
+    min-width: 24px;
+	min-height: 24px;
+	background-color: #3d3d3d;
+}
+
 .me-section > div > div > label {
 	width: 100%;
 	display: flex;
@@ -207,7 +228,9 @@
 	margin: 0;
 	font-size: 0.8rem;
 	font-weight: bold;
-	margin-bottom: 4px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
 }
 
 .marker > div > p {
