@@ -8,8 +8,24 @@ export default class Api {
 
 	getMe() {
 		return new Promise(async (resolve, reject) => {
-            resolve(true)
-        });
+			try {
+                const token = localStorage.getItem('token');
+				const response = await fetch(`${this.host}/api/auth/me`, {
+					method: 'get',
+					mode: 'cors',
+					redirect: 'follow',
+					referrer: 'no-referrer',
+					headers: {
+                        Accept: '*/*',
+                        Authorizatio: `bearer ${token}`
+					},
+				});
+				const data = await response.json();
+				resolve(data);
+			} catch (e) {
+				reject(e);
+			}
+		});
 	}
 
 	authenticate({ email, password }) {
