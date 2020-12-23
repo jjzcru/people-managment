@@ -2,6 +2,8 @@ import { Component } from 'react';
 import { AppContext } from '../services/AppContext';
 import styles from './Home.module.css';
 
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+
 export default class Home extends Component {
 	static contextType = AppContext;
 
@@ -12,8 +14,8 @@ export default class Home extends Component {
     */
 
 	state = {
-        me: null,
-        jobs: []
+		me: null,
+		jobs: [],
 	};
 
 	componentDidMount() {
@@ -39,11 +41,19 @@ export default class Home extends Component {
 
 	getJobs = () => {
 		const { api } = this.context;
+		if (localStorage.getItem('jobs')) {
+			this.setState({
+				jobs: JSON.parse(localStorage.getItem('jobs')),
+			});
+
+			return;
+		}
 		api.getJobs()
 			.then((jobs) => {
-                this.setState({
-                    jobs
-                })
+				localStorage.setItem('jobs', JSON.stringify(jobs));
+				this.setState({
+					jobs,
+				});
 			})
 			.catch(console.error);
 	};
@@ -98,8 +108,98 @@ function Me({ me }) {
 	);
 }
 
-function Map({jobs}) {
-    console.log(`JOBS`);
-    console.log(jobs);
-    return <section className={styles['map-section']}></section>
+function Map({ jobs }) {
+	if (!jobs || !jobs.length) {
+		return <section className={styles['map-section']}></section>;
+	}
+    
+    const {latitude, longitude} = averageGeolocation(jobs);
+
+	return (
+		<section className={styles['map-section']}>
+			<MapContainer
+				zoom={3}
+				center={[latitude, longitude]}
+				className={styles['map-container']}
+			>
+				<TileLayer
+					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+				/>
+				{jobs.map((job) => {
+					const {
+						latitude,
+						longitude,
+						description,
+						title,
+						status,
+						date,
+						assigned_to,
+					} = job;
+					return (
+						<Marker position={[latitude, longitude]}>
+							<Popup>
+								<div className={styles['marker']}>
+									<div>
+										<h4>Title</h4>
+										<p>{title}</p>
+									</div>
+									<div>
+										<h4>Description</h4>
+										<p>{description}</p>
+									</div>
+                                    <div>
+										<h4>Status</h4>
+										<p className={styles['status']}>{status}</p>
+									</div>
+                                    <div>
+										<h4>Assigned To</h4>
+										<p>{assigned_to}</p>
+									</div>
+                                    <div>
+										<h4>Date</h4>
+										<p>{date}</p>
+									</div>
+								</div>
+							</Popup>
+						</Marker>
+					);
+				})}
+			</MapContainer>
+		</section>
+	);
 }
+
+function averageGeolocation(coords) {
+    if (coords.length === 1) {
+      return coords[0];
+    }
+  
+    let x = 0.0;
+    let y = 0.0;
+    let z = 0.0;
+  
+    for (let coord of coords) {
+      let latitude = coord.latitude * Math.PI / 180;
+      let longitude = coord.longitude * Math.PI / 180;
+  
+      x += Math.cos(latitude) * Math.cos(longitude);
+      y += Math.cos(latitude) * Math.sin(longitude);
+      z += Math.sin(latitude);
+    }
+  
+    let total = coords.length;
+  
+    x = x / total;
+    y = y / total;
+    z = z / total;
+  
+    let centralLongitude = Math.atan2(y, x);
+    let centralSquareRoot = Math.sqrt(x * x + y * y);
+    let centralLatitude = Math.atan2(z, centralSquareRoot);
+  
+    return {
+      latitude: centralLatitude * 180 / Math.PI,
+      longitude: centralLongitude * 180 / Math.PI
+    };
+  }

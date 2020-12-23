@@ -38,6 +38,8 @@ export default class Api {
 					try {
                         const jobsFromPage = await this.getJobsByPage(i);
                         for(const job of jobsFromPage) {
+                            job.latitude = parseFloat(job.latitude);
+                            job.longitude = parseFloat(job.longitude);
                             jobs.push(job);
                         }
 						resolve();

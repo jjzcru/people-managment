@@ -111,3 +111,36 @@
 	border-radius: 8px;
 	border: 1px solid #c4c4c4;
 }
+
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+.marker {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.marker > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.marker > div > h4 {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.marker > div > p {
+    margin: 0;
+    font-size: 0.6rem;
+    margin-bottom: 4px;
+}
+
+p.status {
+    text-transform: capitalize;
+}
