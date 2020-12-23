@@ -10,7 +10,8 @@ export default class Home extends Component {
 	state = {
 		me: null,
 		jobs: [],
-		selectedJob: null,
+        selectedJob: null,
+        location: null
 	};
 
 	componentDidMount() {
@@ -159,7 +160,8 @@ function Jobs({ jobs, onJobClick }) {
 					<tr>
 						<th>
 							<input
-								type={'text'}
+                                type={'text'}
+                                placeholder={'Search by title'}
 								value={searchTitle}
 								onChange={(e) => {
 									setSearchTitle(e.target.value);
@@ -169,7 +171,8 @@ function Jobs({ jobs, onJobClick }) {
 						<th>
 							<input
 								type={'text'}
-								value={searchAssign}
+                                value={searchAssign}
+                                placeholder={'Search by assigment'}
 								onChange={(e) => {
 									setSearchAssign(e.target.value);
 								}}
@@ -179,7 +182,6 @@ function Jobs({ jobs, onJobClick }) {
 							<select
 								value={searchStatus}
 								onChange={(e) => {
-									console.log(e.target.value);
 									setSearchStatus(e.target.value);
 								}}
 							>
