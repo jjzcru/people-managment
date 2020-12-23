@@ -1,0 +1,113 @@
+.container {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #fff;
+}
+
+.container > main {
+	max-width: 1024px;
+	width: 1024px;
+	height: 100vh;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 0.4fr 0.6fr;
+	gap: 0px 0px;
+	grid-template-areas:
+		'.'
+		'.';
+}
+
+.container > main > :first-child {
+    width: 100%;
+	display: grid;
+	grid-template-columns: 0.35fr 0.65fr;
+	grid-template-rows: 1fr;
+	gap: 0px 20px;
+	grid-template-areas: '. .';
+}
+
+.container > main > :last-child {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	padding-top: 20px;
+}
+
+.me-section {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+}
+
+.me-section > div {
+	width: 100%;
+	height: 90%;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #c4c4c4;
+	display: flex;
+	flex-direction: column;
+    justify-content: flex-start;
+    padding: 0 20px;
+}
+
+.me-section > div > div {
+	display: grid;
+	grid-template-columns: 0.3fr 0.7fr;
+	grid-template-rows: 1fr;
+	gap: 0px 0px;
+    grid-template-areas: '. .';
+    margin-bottom: 20px;
+}
+
+.me-section > div > h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.me-section > div > div > label {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.me-section > div > div > input {
+    width: 90%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 0.8rem;
+    cursor: not-allowed;
+}
+
+.jobs-section {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+}
+
+.jobs-section > div {
+	width: 100%;
+	height: 90%;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #c4c4c4;
+}
+
+.map-section {
+	width: 100%;
+	height: 90%;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #c4c4c4;
+}
