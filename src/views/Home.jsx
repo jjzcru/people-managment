@@ -36,6 +36,7 @@ export default class Home extends Component {
 				const { id } = me;
 				if (!id) {
 					localStorage.removeItem('token');
+					localStorage.removeItem('jobs');
 					window.location.href = '/auth';
 					return;
 				}
@@ -114,9 +115,38 @@ function Me({ me }) {
 }
 
 function Jobs({ jobs, onJobClick }) {
+	const [searchTitle, setSearchTitle] = useState('');
+	const [searchAssign, setSearchAssign] = useState('');
+	const [searchStatus, setSearchStatus] = useState('');
+	const [filteredJobs, setFilteredJobs] = useState(jobs);
+
+	useEffect(() => {
+		let tempJobs = [...jobs];
+		if (!!searchTitle) {
+			tempJobs = tempJobs.filter((job) => {
+				const { title } = job;
+				return title.includes(searchTitle);
+			});
+		}
+		if (!!searchAssign) {
+			tempJobs = tempJobs.filter((job) => {
+				const { assigned_to } = job;
+				return assigned_to.includes(searchAssign);
+			});
+		}
+		if (!!searchStatus) {
+			tempJobs = tempJobs.filter((job) => {
+				const { status } = job;
+				return status.replace(' ', '-') === searchStatus;
+			});
+		}
+		setFilteredJobs(tempJobs);
+	}, [jobs, searchTitle, searchStatus, searchAssign]);
+
 	if (!jobs || !jobs.length) {
 		return <div></div>;
 	}
+
 	return (
 		<div>
 			<table>
@@ -126,9 +156,45 @@ function Jobs({ jobs, onJobClick }) {
 						<th>Assigned To</th>
 						<th>Status</th>
 					</tr>
+					<tr>
+						<th>
+							<input
+								type={'text'}
+								value={searchTitle}
+								onChange={(e) => {
+									setSearchTitle(e.target.value);
+								}}
+							/>
+						</th>
+						<th>
+							<input
+								type={'text'}
+								value={searchAssign}
+								onChange={(e) => {
+									setSearchAssign(e.target.value);
+								}}
+							/>
+						</th>
+						<th>
+							<select
+								value={searchStatus}
+								onChange={(e) => {
+									console.log(e.target.value);
+									setSearchStatus(e.target.value);
+								}}
+							>
+								<option value={''}>All</option>
+								<option value={'pending'}>Pending</option>
+								<option value={'in-progress'}>
+									In Progress
+								</option>
+								<option value={'complete'}>Complete</option>
+							</select>
+						</th>
+					</tr>
 				</thead>
 				<tbody>
-					{jobs.map((job) => {
+					{filteredJobs.map((job) => {
 						const { id, title, status, assigned_to } = job;
 
 						return (
@@ -161,11 +227,10 @@ function Jobs({ jobs, onJobClick }) {
 function Map({ jobs, job }) {
 	const [map, setMap] = useState(null);
 	useEffect(() => {
-        if(job) {
-            const { latitude, longitude } = job;
-            map.setView({ lat: latitude, lng: longitude }, 5);
-        }
-		
+		if (job) {
+			const { latitude, longitude } = job;
+			map.setView({ lat: latitude, lng: longitude }, 5);
+		}
 	}, [job, map]);
 	if (!jobs || !jobs.length) {
 		return <section className={styles['map-section']}></section>;

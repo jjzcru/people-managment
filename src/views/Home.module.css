@@ -122,8 +122,14 @@
 	color: #3d3d3d;
 	font-weight: bold;
 	height: 32px;
-	border-bottom: 1px solid #c4c4c4;
 }
+
+.jobs-section > div > table > thead > :last-child { 
+    margin: 4px 0px;
+    border-bottom: 1px solid #c4c4c4;
+    height: 60px;
+}
+
 
 .jobs-section > div > table > * > tr {
 	width: 100%;
@@ -135,6 +141,13 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.jobs-section > div > table > thead > tr > th > input{ 
+    width: 80%;
+    height: 20px;
+    margin: 0;
+    padding: 0;
 }
 
 .jobs-section > div > table > tbody {
