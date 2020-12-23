@@ -12,7 +12,8 @@ export default class Home extends Component {
     */
 
 	state = {
-		me: null,
+        me: null,
+        jobs: []
 	};
 
 	componentDidMount() {
@@ -40,8 +41,9 @@ export default class Home extends Component {
 		const { api } = this.context;
 		api.getJobs()
 			.then((jobs) => {
-				console.log(`JOBS`);
-				console.log(jobs);
+                this.setState({
+                    jobs
+                })
 			})
 			.catch(console.error);
 	};
@@ -51,7 +53,7 @@ export default class Home extends Component {
 	};
 
 	render() {
-		const { me } = this.state;
+		const { me, jobs } = this.state;
 		return (
 			<div className={styles['container']}>
 				<main>
@@ -64,7 +66,7 @@ export default class Home extends Component {
 						</section>
 					</div>
 					<div>
-						<section className={styles['map-section']}></section>
+						<Map jobs={jobs} />
 					</div>
 				</main>
 			</div>
@@ -94,4 +96,10 @@ function Me({ me }) {
 			</div>
 		</div>
 	);
+}
+
+function Map({jobs}) {
+    console.log(`JOBS`);
+    console.log(jobs);
+    return <section className={styles['map-section']}></section>
 }
