@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useState, useEffect } from 'react';
 import { AppContext } from '../services/AppContext';
 import styles from './Home.module.css';
 
@@ -7,15 +7,10 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 export default class Home extends Component {
 	static contextType = AppContext;
 
-	/* TODO
-        1.  Me Card
-        2. Jobs Card
-
-    */
-
 	state = {
 		me: null,
 		jobs: [],
+		selectedJob: null,
 	};
 
 	componentDidMount() {
@@ -28,13 +23,23 @@ export default class Home extends Component {
 		this.getJobs();
 	}
 
+	onJobClick = (job) => {
+		this.setState({
+			selectedJob: job,
+		});
+	};
+
 	getMe = () => {
 		const { api } = this.context;
 		api.getMe()
 			.then((me) => {
+				const { id } = me;
+				if (!id) {
+					localStorage.removeItem('token');
+					window.location.href = '/auth';
+					return;
+				}
 				this.setState({ me });
-				console.log(`ME`);
-				console.log(me);
 			})
 			.catch(console.error);
 	};
@@ -63,7 +68,7 @@ export default class Home extends Component {
 	};
 
 	render() {
-		const { me, jobs } = this.state;
+		const { me, jobs, selectedJob } = this.state;
 		return (
 			<div className={styles['container']}>
 				<main>
@@ -72,11 +77,11 @@ export default class Home extends Component {
 							<Me me={me} />
 						</section>
 						<section className={styles['jobs-section']}>
-							<div></div>
+							<Jobs jobs={jobs} onJobClick={this.onJobClick} />
 						</section>
 					</div>
 					<div>
-						<Map jobs={jobs} />
+						<Map jobs={jobs} job={selectedJob} />
 					</div>
 				</main>
 			</div>
@@ -108,19 +113,82 @@ function Me({ me }) {
 	);
 }
 
-function Map({ jobs }) {
+function Jobs({ jobs, onJobClick }) {
+	if (!jobs || !jobs.length) {
+		return <div></div>;
+	}
+	return (
+		<div>
+			<table>
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Assigned To</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					{jobs.map((job) => {
+						const { id, title, status, assigned_to } = job;
+
+						return (
+							<tr
+								key={id}
+								onClick={() => {
+									onJobClick(job);
+								}}
+							>
+								<td>{title}</td>
+								<td>{assigned_to}</td>
+								<td
+									className={
+										styles[
+											`job-${status.replace(' ', '-')}`
+										]
+									}
+								>
+									{status}
+								</td>
+							</tr>
+						);
+					})}
+				</tbody>
+			</table>
+		</div>
+	);
+}
+
+function Map({ jobs, job }) {
+	const [map, setMap] = useState(null);
+	useEffect(() => {
+        if(job) {
+            const { latitude, longitude } = job;
+            map.setView({ lat: latitude, lng: longitude }, 5);
+        }
+		
+	}, [job, map]);
 	if (!jobs || !jobs.length) {
 		return <section className={styles['map-section']}></section>;
 	}
-    
-    const {latitude, longitude} = averageGeolocation(jobs);
+	let latitude, longitude;
+	let zoom;
+
+	if (!job) {
+		zoom = 3;
+		const averageLocation = averageGeolocation(jobs);
+		latitude = averageLocation.latitude;
+		longitude = averageLocation.longitude;
+	}
 
 	return (
 		<section className={styles['map-section']}>
 			<MapContainer
-				zoom={3}
+				zoom={zoom}
 				center={[latitude, longitude]}
 				className={styles['map-container']}
+				whenCreated={(map) => {
+					setMap(map);
+				}}
 			>
 				<TileLayer
 					attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -128,6 +196,7 @@ function Map({ jobs }) {
 				/>
 				{jobs.map((job) => {
 					const {
+						id,
 						latitude,
 						longitude,
 						description,
@@ -137,7 +206,7 @@ function Map({ jobs }) {
 						assigned_to,
 					} = job;
 					return (
-						<Marker position={[latitude, longitude]}>
+						<Marker key={id} position={[latitude, longitude]}>
 							<Popup>
 								<div className={styles['marker']}>
 									<div>
@@ -148,15 +217,17 @@ function Map({ jobs }) {
 										<h4>Description</h4>
 										<p>{description}</p>
 									</div>
-                                    <div>
+									<div>
 										<h4>Status</h4>
-										<p className={styles['status']}>{status}</p>
+										<p className={styles['status']}>
+											{status}
+										</p>
 									</div>
-                                    <div>
+									<div>
 										<h4>Assigned To</h4>
 										<p>{assigned_to}</p>
 									</div>
-                                    <div>
+									<div>
 										<h4>Date</h4>
 										<p>{date}</p>
 									</div>
@@ -171,35 +242,35 @@ function Map({ jobs }) {
 }
 
 function averageGeolocation(coords) {
-    if (coords.length === 1) {
-      return coords[0];
-    }
-  
-    let x = 0.0;
-    let y = 0.0;
-    let z = 0.0;
-  
-    for (let coord of coords) {
-      let latitude = coord.latitude * Math.PI / 180;
-      let longitude = coord.longitude * Math.PI / 180;
-  
-      x += Math.cos(latitude) * Math.cos(longitude);
-      y += Math.cos(latitude) * Math.sin(longitude);
-      z += Math.sin(latitude);
-    }
-  
-    let total = coords.length;
-  
-    x = x / total;
-    y = y / total;
-    z = z / total;
-  
-    let centralLongitude = Math.atan2(y, x);
-    let centralSquareRoot = Math.sqrt(x * x + y * y);
-    let centralLatitude = Math.atan2(z, centralSquareRoot);
-  
-    return {
-      latitude: centralLatitude * 180 / Math.PI,
-      longitude: centralLongitude * 180 / Math.PI
-    };
-  }
+	if (coords.length === 1) {
+		return coords[0];
+	}
+
+	let x = 0.0;
+	let y = 0.0;
+	let z = 0.0;
+
+	for (let coord of coords) {
+		let latitude = (coord.latitude * Math.PI) / 180;
+		let longitude = (coord.longitude * Math.PI) / 180;
+
+		x += Math.cos(latitude) * Math.cos(longitude);
+		y += Math.cos(latitude) * Math.sin(longitude);
+		z += Math.sin(latitude);
+	}
+
+	let total = coords.length;
+
+	x = x / total;
+	y = y / total;
+	z = z / total;
+
+	let centralLongitude = Math.atan2(y, x);
+	let centralSquareRoot = Math.sqrt(x * x + y * y);
+	let centralLatitude = Math.atan2(z, centralSquareRoot);
+
+	return {
+		latitude: (centralLatitude * 180) / Math.PI,
+		longitude: (centralLongitude * 180) / Math.PI,
+	};
+}
